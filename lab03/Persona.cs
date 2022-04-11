@@ -22,33 +22,18 @@ namespace lab03
 
         private void btnListar_Click(object sender, EventArgs e)
         {
-            if (conn.State == ConnectionState.Open)
-            {
-                String sql = "SELECT * FROM tbl_usuario";
-                SqlCommand cmd = new SqlCommand(sql, conn);
-                SqlDataReader reader = cmd.ExecuteReader();
-
-                DataTable dt = new DataTable();
-                dt.Load(reader);
-                dgvListado.DataSource = dt;
-                dgvListado.Refresh();
-            }
-            else
-            {
-                MessageBox.Show("La conexion esta cerrada");
-            }
-        }
-
-        private void btnBuscar_Click(object sender, EventArgs e)
-        {
-            String Buscar = txtNombre.Text;
             try
             {
-                if (!Buscar.Equals(""))
+                if (conn == null)
                 {
+                    MessageBox.Show("La conexion es nula");
+                }
+                else
+                {
+
                     if (conn.State == ConnectionState.Open)
                     {
-                        String sql = "SELECT * FROM tbl_usuario WHERE usuario_nombre = '" + Buscar + "'";
+                        String sql = "SELECT * FROM Person";
                         SqlCommand cmd = new SqlCommand(sql, conn);
                         SqlDataReader reader = cmd.ExecuteReader();
 
@@ -61,17 +46,46 @@ namespace lab03
                     {
                         MessageBox.Show("La conexión esta cerrada");
                     }
-                }
-                else
-                {
-                    MessageBox.Show("Ingrese el nombre del usuario a buscar");
 
                 }
+
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al buscar el usuario: " + ex);
+                MessageBox.Show("Error en listar los usuarios: " + ex);
+            }
+        }
 
+        private void btnBuscar_Click(object sender, EventArgs e)
+        {
+            if (conn.State == ConnectionState.Open)
+            {
+                try
+                {
+                    String FirstName = txtNombre.Text;
+
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.CommandText = "BuscarPersonaNombre";
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Connection = conn;
+
+                    SqlParameter param = new SqlParameter();
+                    param.ParameterName = "@FirstName";
+                    param.Value = FirstName;
+
+                    cmd.Parameters.Add(param);
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    DataTable dt = new DataTable();
+                    dt.Load(reader);
+                    dgvListado.DataSource = dt;
+                    dgvListado.Refresh();
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("La Conexion esta cerrada...", ex.ToString());
+                }
             }
         }
     }
